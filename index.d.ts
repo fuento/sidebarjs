@@ -28,6 +28,7 @@ declare namespace SidebarJS {
     private __onSwipeOpenEnd: () => void;
     private __wasVisible: boolean;
     private __emitOnOpen: () => void;
+    private __emitOnMoving: () => void;
     private __emitOnClose: () => void;
     private __emitOnChangeVisibility: (changes: { isVisible: boolean }) => void;
 
@@ -127,6 +128,7 @@ declare namespace SidebarJS {
     position?: SidebarPosition;
     backdropOpacity?: number;
     onOpen?: () => void;
+    onMoving?: () => void;
     onClose?: () => void;
     onChangeVisibility?: (changes: { isVisible: boolean }) => void;
   }

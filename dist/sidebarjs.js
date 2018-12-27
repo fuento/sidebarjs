@@ -11,7 +11,7 @@
 }(this, (function (exports) { 'use strict';
 
 	function unwrapExports (x) {
-		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
 	}
 
 	function createCommonjsModule(fn, module) {
@@ -44,6 +44,7 @@
 	        };
 	        this.__onTouchStart = function (e) {
 	            _this.initialTouch = e.touches[0].pageX;
+	            document.querySelector('body').style.overflow = "hidden";
 	        };
 	        this.__onTouchMove = function (e) {
 	            var swipeDirection = -(_this.initialTouch - e.touches[0].clientX);
@@ -51,6 +52,9 @@
 	            if (sidebarMovement <= _this.container.clientWidth) {
 	                _this.touchMoveSidebar = Math.abs(swipeDirection);
 	                _this.moveSidebar(swipeDirection);
+	                if (_this.__emitOnMoving) {
+	                    _this.__emitOnMoving();
+	                }
 	            }
 	        };
 	        this.__onTouchEnd = function () {
@@ -60,6 +64,7 @@
 	            _this.touchMoveSidebar > (_this.container.clientWidth / 3.5) ? _this.close() : _this.open();
 	            _this.initialTouch = null;
 	            _this.touchMoveSidebar = null;
+	            document.querySelector('body').style.overflow = "unset";
 	        };
 	        this.__onSwipeOpenStart = function (e) {
 	            if (_this.targetElementIsBackdrop(e)) {
@@ -106,8 +111,9 @@
 	            if (_this.__emitOnChangeVisibility) {
 	                _this.__emitOnChangeVisibility({ isVisible: isVisible });
 	            }
+	            document.querySelector('body').style.overflow = "unset";
 	        };
-	        var component = config.component, container = config.container, backdrop = config.backdrop, _a = config.documentMinSwipeX, documentMinSwipeX = _a === void 0 ? 10 : _a, _b = config.documentSwipeRange, documentSwipeRange = _b === void 0 ? 40 : _b, nativeSwipe = config.nativeSwipe, nativeSwipeOpen = config.nativeSwipeOpen, _c = config.responsive, responsive = _c === void 0 ? false : _c, mainContent = config.mainContent, _d = config.position, position = _d === void 0 ? 'left' : _d, _e = config.backdropOpacity, backdropOpacity = _e === void 0 ? 0.3 : _e, onOpen = config.onOpen, onClose = config.onClose, onChangeVisibility = config.onChangeVisibility;
+	        var component = config.component, container = config.container, backdrop = config.backdrop, _a = config.documentMinSwipeX, documentMinSwipeX = _a === void 0 ? 10 : _a, _b = config.documentSwipeRange, documentSwipeRange = _b === void 0 ? 40 : _b, nativeSwipe = config.nativeSwipe, nativeSwipeOpen = config.nativeSwipeOpen, _c = config.responsive, responsive = _c === void 0 ? false : _c, mainContent = config.mainContent, _d = config.position, position = _d === void 0 ? 'left' : _d, _e = config.backdropOpacity, backdropOpacity = _e === void 0 ? 0.3 : _e, onOpen = config.onOpen, onMoving = config.onMoving, onClose = config.onClose, onChangeVisibility = config.onChangeVisibility;
 	        var hasCustomTransclude = container && backdrop;
 	        this.component = component || document.querySelector("[" + SIDEBARJS + "]");
 	        this.container = hasCustomTransclude ? container : SidebarElement.create(SIDEBARJS + "-container");
@@ -122,6 +128,7 @@
 	        this.backdropOpacity = backdropOpacity;
 	        this.backdropOpacityRatio = 1 / backdropOpacity;
 	        this.__emitOnOpen = onOpen;
+	        this.__emitOnMoving = onMoving;
 	        this.__emitOnClose = onClose;
 	        this.__emitOnChangeVisibility = onChangeVisibility;
 	        if (!hasCustomTransclude) {
@@ -259,8 +266,11 @@
 	    };
 	    SidebarElement.prototype.moveSidebar = function (movement) {
 	        this.component.classList.add(IS_MOVING);
-	        this.applyStyle(this.container, 'transform', "translate(" + movement + "px, 0)", true);
+	        this.applyStyle(this.container, 'transform', "translate3d(" + movement + "px, 0, 0)", true);
 	        this.updateBackdropOpacity(movement);
+	        if (this.__emitOnMoving) {
+	            this.__emitOnMoving();
+	        }
 	    };
 	    SidebarElement.prototype.updateBackdropOpacity = function (movement) {
 	        var swipeProgress = 1 - (Math.abs(movement) / this.container.clientWidth);
