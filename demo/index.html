@@ -41,10 +41,14 @@
 
       <section>
         <h2>Position</h2>
-        <input type="radio" id="position-left" name="position" value="left" checked>
+        <input type="radio" id="position-left" name="position" value="left" >
         <label for="position-left">Left</label>
         <input type="radio" id="position-right" name="position" value="right">
         <label for="position-right">Right</label>
+        <input type="radio" id="position-bottom" name="position" value="bottom" checked>
+        <label for="position-bottom">Bottom</label>
+        <input type="radio" id="position-top" name="position" value="top">
+        <label for="position-top">Top</label>
       </section>
 
       <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis quisquam inventore ratione voluptates aspernatur sequi aliquam ab qui distinctio, sunt fugit totam voluptatem veritatis saepe, placeat, dolorem deleniti cum maxime consequuntur. Distinctio voluptatibus deleniti reiciendis molestiae architecto tempore corporis mollitia incidunt ducimus odit non hic officiis perspiciatis ratione, veritatis, rerum eum, dignissimos fuga. Pariatur laudantium necessitatibus facere voluptatem esse eum ipsum perspiciatis nesciunt harum quas unde delectus saepe animi, fugit magni quos quisquam, totam debitis expedita ratione neque, omnis nemo! Voluptatem sed, sunt asperiores perspiciatis provident enim quidem maxime aperiam tempora consectetur! Eum modi eveniet culpa totam laborum, pariatur minima.</p>
@@ -64,9 +68,10 @@
 
     <script type="text/javascript">
       // SidebarJS Init
-      var sidebarjs = new SidebarJS.SidebarElement({responsive: true, mainContent: document.querySelector('main'), onMoving: function() {
-        console.log('is moving');
-      }});
+      var sidebarjs = new SidebarJS.SidebarElement({
+        responsive: false, 
+        mainContent: document.querySelector('main')
+      });
     </script>
 
     <!-- –––––––––––––––––

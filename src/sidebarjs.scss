@@ -1,15 +1,28 @@
-$timing: ease;
-$duration: .3s;
+$timing: cubic-bezier(.45,.05,.55,.95);
+$closeDuration: .2s;
+$openDuration: 0.25s;
 $width: 300px;
 
 @mixin shadow($position) {
-  $x: 0;
+  $x: 0; $y: 0;
   @if ($position == 'left') {
     $x: 2px;
-  } @else if ($position == 'right') {
+    $y: 0px;
+  } @else if ($position == 'right') {    
     $x: -2px;
+    $y: 0px;
+  } @else if ($position == 'top') {
+    $x: 0px;
+    $y: 2px;
+  } @else if ($position == 'bottom') {
+    $x: 0px;
+    $y: -2px;
   }
-  box-shadow: $x 0 4px rgba(0, 0, 0, 0.2);
+  box-shadow: $x $y 4px rgba(0, 0, 0, 0.2);
+}
+
+.ui-block-scrolling {
+  overflow-y: hidden;
 }
 
 %component--full-screen {
@@ -20,19 +33,33 @@ $width: 300px;
 }
 
 @mixin component--is-visible($important: null) {
-  transform: translate(0, 0) $important;
+  transform: translate3d(0, 0, 0) $important;
   transition: transform 0s $timing 0s;
   [sidebarjs-container] {
-    transform: translate(0, 0) $important;
+    transform: translate3d(0, 0, 0) $important;
+    transition-duration: $openDuration;
   }
 }
 
 %component--left {
-  transform: translate(-100%, 0);
+  transform: translate3d(-100%, 0, 0);
 }
 
 %component--right {
-  transform: translate(100%, 0);
+  transform: translate3d(100%, 0, 0);
+}
+
+%component--top {
+  transform: translate3d(0, -90%, 0);
+}
+
+%component--bottom {
+  transform: translate3d(0, 90%, 0);
+  width: 100%;
+  max-width: 100%;
+  top: auto;
+  bottom: 0;
+  z-index: 9000;
 }
 
 [sidebarjs].sidebarjs--left {
@@ -52,12 +79,33 @@ $width: 300px;
   }
 }
 
+[sidebarjs].sidebarjs--top {
+  @extend %component--top;
+  [sidebarjs-container] {
+    @extend %component--top;
+    @include shadow('top');
+    margin-left: auto;
+  }
+}
+
+[sidebarjs].sidebarjs--bottom {
+  @extend %component--bottom;
+  transition: transform $closeDuration $timing;
+  [sidebarjs-container] {
+    @include shadow('bottom');
+    transform: translate3d(0, 0, 0);
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+  }
+}
+
 [sidebarjs-backdrop] {
   @extend %component--full-screen;
   position: absolute;
   background: #000;
   opacity: 0;
-  transition: opacity $duration $timing;
+  transition: opacity $closeDuration $timing;
   will-change: opacity;
 }
 
@@ -70,7 +118,7 @@ $width: 300px;
   max-width: $width;
   height: 100%;
   background: #fff;
-  transition: transform $timing $duration;
+  transition: transform $timing $closeDuration;
   will-change: transform;
 }
 
@@ -78,15 +126,25 @@ $width: 300px;
   @extend %component--full-screen;
   position: fixed;
   z-index: 9999;
-  transition: transform 0s $timing $duration;
+  transition: transform 0s $timing $closeDuration;
 
   &.sidebarjs--is-visible {
     @include component--is-visible;
   }
 
+  &.sidebarjs--is-visible.sidebarjs--bottom {
+    @include component--is-visible;
+    transition: transform $closeDuration $timing !important;
+    height: 100%;
+    bottom: 0;
+    [sidebarjs-container] {
+      margin-top: 0;
+    }
+  }
+
   &.sidebarjs--is-moving {
     transition: none;
-    transform: translate(0, 0);
+    transform: translate3d(0, 0, 0);
     [sidebarjs-container], [sidebarjs-backdrop] {
       transition: none;
     }
@@ -97,12 +155,22 @@ $width: 300px;
   position: relative;
   width: 100%;
   min-height: 100%;
-  transition: width $duration $timing;
+  transition: width $closeDuration $timing;
+
   &.sidebarjs-content--left {
     margin-left: auto;
     margin-right: 0;
   }
   &.sidebarjs-content--right {
+    margin-left: 0;
+    margin-right: auto;
+  }
+  &.sidebarjs-content--top {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  &.sidebarjs-content--bottom {
     margin-left: 0;
     margin-right: auto;
   }
@@ -126,6 +194,20 @@ $width: 300px;
         box-shadow: -1px 0 0 rgba(black, .1);
       }
     }
+    &.sidebarjs--top {
+      top: 0;
+      left: auto;
+      [sidebarjs-container] {
+        box-shadow: -1px 0 0 rgba(black, .1);
+      }
+    }
+    &.sidebarjs--bottom {
+      bottom: 0;
+      left: auto;
+      [sidebarjs-container] {
+        box-shadow: -1px 0 0 rgba(black, .1);
+      }
+    }    
     [sidebarjs-container] {
       max-width: none;
       width: 100%;

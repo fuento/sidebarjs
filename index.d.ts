@@ -9,6 +9,7 @@ declare namespace SidebarJS {
     public container: HTMLElement;
     public backdrop: HTMLElement;
     public documentMinSwipeX: number;
+    public documentMinSwipeY: number;
     public documentSwipeRange: number;
     public nativeSwipe: boolean;
     public nativeSwipeOpen: boolean;
@@ -120,6 +121,7 @@ declare namespace SidebarJS {
     container?: HTMLElement;
     backdrop?: HTMLElement;
     documentMinSwipeX?: number;
+    documentMinSwipeY?: number;
     documentSwipeRange?: number;
     nativeSwipe?: boolean;
     nativeSwipeOpen?: boolean;
@@ -137,5 +139,5 @@ declare namespace SidebarJS {
     sidebarjsListener?: boolean;
   }
 
-  export type SidebarPosition = 'left' | 'right';
+  export type SidebarPosition = 'left' | 'right' | 'top' | 'bottom';
 }

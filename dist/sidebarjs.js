@@ -26,7 +26,9 @@
 	var IS_MOVING = SIDEBARJS + "--is-moving";
 	var LEFT_POSITION = 'left';
 	var RIGHT_POSITION = 'right';
-	var POSITIONS = [LEFT_POSITION, RIGHT_POSITION];
+	var TOP_POSITION = 'top';
+	var BOTTOM_POSITION = 'bottom';
+	var POSITIONS = [LEFT_POSITION, RIGHT_POSITION, TOP_POSITION, BOTTOM_POSITION];
 	var SidebarElement = /** @class */ (function () {
 	    function SidebarElement(config) {
 	        if (config === void 0) { config = {}; }
@@ -43,13 +45,28 @@
 	            _this.clearStyle(_this.backdrop);
 	        };
 	        this.__onTouchStart = function (e) {
-	            _this.initialTouch = e.touches[0].pageX;
-	            document.querySelector('body').style.overflow = "hidden";
+	            if (_this.hasTopPosition() || _this.hasBottomPosition()) {
+	                var offset = (10 * window.innerHeight / 100);
+	                _this.initialTouch = e.touches[0].clientY + offset;
+	            }
+	            else {
+	                _this.initialTouch = e.touches[0].pageX;
+	            }
+	            document.querySelector('body').classList.add('ui-block-scrolling');
 	        };
 	        this.__onTouchMove = function (e) {
-	            var swipeDirection = -(_this.initialTouch - e.touches[0].clientX);
-	            var sidebarMovement = _this.container.clientWidth + (_this.hasLeftPosition() ? swipeDirection : -swipeDirection);
-	            if (sidebarMovement <= _this.container.clientWidth) {
+	            var swipeDirection, sidebarMovement, clientContainer;
+	            if (_this.hasTopPosition() || _this.hasBottomPosition()) {
+	                swipeDirection = -(_this.initialTouch - e.touches[0].clientY);
+	                sidebarMovement = _this.container.clientHeight + (_this.hasTopPosition() ? swipeDirection : -swipeDirection);
+	                clientContainer = _this.container.clientHeight;
+	            }
+	            else {
+	                swipeDirection = -(_this.initialTouch - e.touches[0].clientX);
+	                sidebarMovement = _this.container.clientWidth + (_this.hasLeftPosition() ? swipeDirection : -swipeDirection);
+	                clientContainer = _this.container.clientWidth;
+	            }
+	            if (sidebarMovement <= clientContainer) {
 	                _this.touchMoveSidebar = Math.abs(swipeDirection);
 	                _this.moveSidebar(swipeDirection);
 	                if (_this.__emitOnMoving) {
@@ -61,30 +78,54 @@
 	            _this.component.classList.remove(IS_MOVING);
 	            _this.clearStyle(_this.container);
 	            _this.clearStyle(_this.backdrop);
-	            _this.touchMoveSidebar > (_this.container.clientWidth / 3.5) ? _this.close() : _this.open();
+	            if (_this.hasTopPosition() || _this.hasBottomPosition()) {
+	                _this.touchMoveSidebar > (_this.container.clientHeight / 3.5) ? _this.close() : _this.open();
+	            }
+	            else {
+	                _this.touchMoveSidebar > (_this.container.clientWidth / 3.5) ? _this.close() : _this.open();
+	            }
 	            _this.initialTouch = null;
 	            _this.touchMoveSidebar = null;
-	            document.querySelector('body').style.overflow = "unset";
 	        };
 	        this.__onSwipeOpenStart = function (e) {
 	            if (_this.targetElementIsBackdrop(e)) {
 	                return;
 	            }
-	            var touchPositionX = e.touches[0].clientX;
-	            var documentTouch = _this.hasLeftPosition() ? touchPositionX : document.body.clientWidth - touchPositionX;
+	            var touchPosition, documentTouch;
+	            if (_this.hasTopPosition() || _this.hasBottomPosition()) {
+	                touchPosition = e.touches[0].clientY;
+	                documentTouch = _this.hasTopPosition() ? touchPosition : window.innerHeight - touchPosition;
+	            }
+	            else {
+	                touchPosition = e.touches[0].clientX;
+	                documentTouch = _this.hasLeftPosition() ? touchPosition : document.body.clientWidth - touchPosition;
+	            }
 	            if (documentTouch < _this.documentSwipeRange) {
 	                _this.__onTouchStart(e);
 	            }
 	        };
 	        this.__onSwipeOpenMove = function (e) {
 	            if (!_this.targetElementIsBackdrop(e) && _this.initialTouch && !_this.isVisible()) {
-	                var documentSwiped = e.touches[0].clientX - _this.initialTouch;
-	                var hasLeftPosition = _this.hasLeftPosition();
-	                var swipeX = hasLeftPosition ? documentSwiped : -documentSwiped;
-	                var sidebarMovement = _this.container.clientWidth - swipeX;
-	                if (sidebarMovement > 0 && swipeX >= _this.documentMinSwipeX) {
-	                    _this.openMovement = hasLeftPosition ? -sidebarMovement : sidebarMovement;
-	                    _this.moveSidebar(_this.openMovement);
+	                var documentSwiped = void 0, swipe = void 0, sidebarMovement = void 0, hasPosition = void 0;
+	                if (_this.hasTopPosition() || _this.hasBottomPosition()) {
+	                    hasPosition = _this.hasTopPosition();
+	                    documentSwiped = e.touches[0].clientY - _this.initialTouch;
+	                    swipe = hasPosition ? documentSwiped : -documentSwiped;
+	                    sidebarMovement = _this.container.clientHeight - swipe;
+	                    if (sidebarMovement > 0 && swipe >= _this.documentMinSwipeY) {
+	                        _this.openMovement = hasPosition ? -sidebarMovement : sidebarMovement;
+	                        _this.moveSidebar(_this.openMovement);
+	                    }
+	                }
+	                else {
+	                    hasPosition = _this.hasLeftPosition();
+	                    documentSwiped = e.touches[0].clientX - _this.initialTouch;
+	                    swipe = hasPosition ? documentSwiped : -documentSwiped;
+	                    sidebarMovement = _this.container.clientWidth - swipe;
+	                    if (sidebarMovement > 0 && swipe >= _this.documentMinSwipeX) {
+	                        _this.openMovement = hasPosition ? -sidebarMovement : sidebarMovement;
+	                        _this.moveSidebar(_this.openMovement);
+	                    }
 	                }
 	            }
 	        };
@@ -93,6 +134,7 @@
 	                _this.openMovement = null;
 	                _this.__onTouchEnd();
 	            }
+	            document.querySelector('body').classList.remove('ui-block-scrolling');
 	        };
 	        this.__onTransitionEnd = function () {
 	            var isVisible = _this.isVisible();
@@ -111,14 +153,15 @@
 	            if (_this.__emitOnChangeVisibility) {
 	                _this.__emitOnChangeVisibility({ isVisible: isVisible });
 	            }
-	            document.querySelector('body').style.overflow = "unset";
+	            document.querySelector('body').classList.remove('ui-block-scrolling');
 	        };
-	        var component = config.component, container = config.container, backdrop = config.backdrop, _a = config.documentMinSwipeX, documentMinSwipeX = _a === void 0 ? 10 : _a, _b = config.documentSwipeRange, documentSwipeRange = _b === void 0 ? 40 : _b, nativeSwipe = config.nativeSwipe, nativeSwipeOpen = config.nativeSwipeOpen, _c = config.responsive, responsive = _c === void 0 ? false : _c, mainContent = config.mainContent, _d = config.position, position = _d === void 0 ? 'left' : _d, _e = config.backdropOpacity, backdropOpacity = _e === void 0 ? 0.3 : _e, onOpen = config.onOpen, onMoving = config.onMoving, onClose = config.onClose, onChangeVisibility = config.onChangeVisibility;
+	        var component = config.component, container = config.container, backdrop = config.backdrop, _a = config.documentMinSwipeX, documentMinSwipeX = _a === void 0 ? 10 : _a, _b = config.documentMinSwipeY, documentMinSwipeY = _b === void 0 ? 10 : _b, _c = config.documentSwipeRange, documentSwipeRange = _c === void 0 ? 40 : _c, nativeSwipe = config.nativeSwipe, nativeSwipeOpen = config.nativeSwipeOpen, _d = config.responsive, responsive = _d === void 0 ? false : _d, mainContent = config.mainContent, _e = config.position, position = _e === void 0 ? 'left' : _e, _f = config.backdropOpacity, backdropOpacity = _f === void 0 ? 0.3 : _f, onOpen = config.onOpen, onMoving = config.onMoving, onClose = config.onClose, onChangeVisibility = config.onChangeVisibility;
 	        var hasCustomTransclude = container && backdrop;
 	        this.component = component || document.querySelector("[" + SIDEBARJS + "]");
 	        this.container = hasCustomTransclude ? container : SidebarElement.create(SIDEBARJS + "-container");
 	        this.backdrop = hasCustomTransclude ? backdrop : SidebarElement.create(SIDEBARJS + "-backdrop");
 	        this.documentMinSwipeX = documentMinSwipeX;
+	        this.documentMinSwipeY = documentMinSwipeY;
 	        this.documentSwipeRange = documentSwipeRange;
 	        this.nativeSwipe = nativeSwipe !== false;
 	        this.nativeSwipeOpen = nativeSwipeOpen !== false;
@@ -167,8 +210,6 @@
 	        Object.keys(this).forEach(function (key) { return _this[key] = null; });
 	    };
 	    SidebarElement.prototype.setPosition = function (position) {
-	        var _this = this;
-	        this.component.classList.add(IS_MOVING);
 	        this.position = POSITIONS.indexOf(position) >= 0 ? position : LEFT_POSITION;
 	        var resetMainContent = (document.querySelectorAll("[" + SIDEBARJS + "]") || []).length === 1;
 	        this.removeComponentClassPosition(resetMainContent);
@@ -176,7 +217,7 @@
 	        if (this.responsive && this.mainContent) {
 	            this.mainContent.classList.add(SIDEBARJS_CONTENT + "--" + this.position);
 	        }
-	        setTimeout(function () { return _this.component && _this.component.classList.remove(IS_MOVING); }, 200);
+	        this.component;
 	    };
 	    SidebarElement.prototype.addAttrsEventsListeners = function (sidebarName) {
 	        var _this = this;
@@ -234,6 +275,12 @@
 	    SidebarElement.prototype.hasRightPosition = function () {
 	        return this.position === RIGHT_POSITION;
 	    };
+	    SidebarElement.prototype.hasTopPosition = function () {
+	        return this.position === TOP_POSITION;
+	    };
+	    SidebarElement.prototype.hasBottomPosition = function () {
+	        return this.position === BOTTOM_POSITION;
+	    };
 	    SidebarElement.prototype.transcludeContent = function () {
 	        while (this.component.firstChild) {
 	            this.container.appendChild(this.component.firstChild);
@@ -266,7 +313,12 @@
 	    };
 	    SidebarElement.prototype.moveSidebar = function (movement) {
 	        this.component.classList.add(IS_MOVING);
-	        this.applyStyle(this.container, 'transform', "translate3d(" + movement + "px, 0, 0)", true);
+	        if (this.hasTopPosition() || this.hasBottomPosition()) {
+	            this.applyStyle(this.container, 'transform', "translate3d(0, " + movement + "px, 0)", true);
+	        }
+	        else {
+	            this.applyStyle(this.container, 'transform', "translate3d(" + movement + "px, 0, 0)", true);
+	        }
 	        this.updateBackdropOpacity(movement);
 	        if (this.__emitOnMoving) {
 	            this.__emitOnMoving();

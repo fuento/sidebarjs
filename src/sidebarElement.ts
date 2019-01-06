@@ -6,7 +6,9 @@ const IS_VISIBLE: string = `${SIDEBARJS}--is-visible`;
 const IS_MOVING: string = `${SIDEBARJS}--is-moving`;
 const LEFT_POSITION: SidebarPosition = 'left';
 const RIGHT_POSITION: SidebarPosition = 'right';
-const POSITIONS: SidebarPosition[] = [LEFT_POSITION, RIGHT_POSITION];
+const TOP_POSITION: SidebarPosition = 'top';
+const BOTTOM_POSITION: SidebarPosition = 'bottom';
+const POSITIONS: SidebarPosition[] = [LEFT_POSITION, RIGHT_POSITION, TOP_POSITION, BOTTOM_POSITION];
 
 export class SidebarElement implements SidebarBase {
   public position: SidebarPosition;
@@ -14,6 +16,7 @@ export class SidebarElement implements SidebarBase {
   public readonly container: HTMLElement;
   public readonly backdrop: HTMLElement;
   public readonly documentMinSwipeX: number;
+  public readonly documentMinSwipeY: number;
   public readonly documentSwipeRange: number;
   public readonly nativeSwipe: boolean;
   public readonly nativeSwipeOpen: boolean;
@@ -37,6 +40,7 @@ export class SidebarElement implements SidebarBase {
       container,
       backdrop,
       documentMinSwipeX = 10,
+      documentMinSwipeY = 10,
       documentSwipeRange = 40,
       nativeSwipe,
       nativeSwipeOpen,
@@ -54,6 +58,7 @@ export class SidebarElement implements SidebarBase {
     this.container = hasCustomTransclude ? container : SidebarElement.create(`${SIDEBARJS}-container`);
     this.backdrop = hasCustomTransclude ? backdrop : SidebarElement.create(`${SIDEBARJS}-backdrop`);
     this.documentMinSwipeX = documentMinSwipeX;
+    this.documentMinSwipeY = documentMinSwipeY;
     this.documentSwipeRange = documentSwipeRange;
     this.nativeSwipe = nativeSwipe !== false;
     this.nativeSwipeOpen = nativeSwipeOpen !== false;
@@ -102,38 +107,66 @@ export class SidebarElement implements SidebarBase {
   }
 
   private __onTouchStart = (e: TouchEvent): void => {
-    this.initialTouch = e.touches[0].pageX;
-    document.querySelector('body').style.overflow = "hidden";
+    if(this.hasTopPosition() || this.hasBottomPosition()) {
+      const offset = (10 * window.innerHeight / 100);
+      this.initialTouch = e.touches[0].clientY + offset;
+    } else {
+      this.initialTouch = e.touches[0].pageX;
+    }
+    
+    document.querySelector('body').classList.add('ui-block-scrolling');
   }
 
   private __onTouchMove = (e: TouchEvent): void => {
-    const swipeDirection = -(this.initialTouch - e.touches[0].clientX);
-    const sidebarMovement = this.container.clientWidth + (this.hasLeftPosition() ? swipeDirection : -swipeDirection);
-    if (sidebarMovement <= this.container.clientWidth) {
+    let swipeDirection, sidebarMovement, clientContainer;
+
+    if(this.hasTopPosition() || this.hasBottomPosition()) {    
+      swipeDirection = -(this.initialTouch - e.touches[0].clientY);  
+      sidebarMovement = this.container.clientHeight + (this.hasTopPosition() ? swipeDirection : -swipeDirection);
+      clientContainer = this.container.clientHeight;
+    } else {
+      swipeDirection = -(this.initialTouch - e.touches[0].clientX);  
+      sidebarMovement = this.container.clientWidth + (this.hasLeftPosition() ? swipeDirection : -swipeDirection);
+      clientContainer = this.container.clientWidth;
+    }
+
+    if (sidebarMovement <= clientContainer) {
       this.touchMoveSidebar = Math.abs(swipeDirection);
       this.moveSidebar(swipeDirection);
       if (this.__emitOnMoving) {
         this.__emitOnMoving();
       }
-    }    
+    }
   }
 
   private __onTouchEnd = (): void => {
     this.component.classList.remove(IS_MOVING);
     this.clearStyle(this.container);
     this.clearStyle(this.backdrop);
-    this.touchMoveSidebar > (this.container.clientWidth / 3.5) ? this.close() : this.open();
+    if(this.hasTopPosition() || this.hasBottomPosition()) {
+      this.touchMoveSidebar > (this.container.clientHeight / 3.5) ? this.close() : this.open();
+    } else {
+      this.touchMoveSidebar > (this.container.clientWidth / 3.5) ? this.close() : this.open();  
+    }
+    
     this.initialTouch = null;
-    this.touchMoveSidebar = null;
-    document.querySelector('body').style.overflow = "unset";
+    this.touchMoveSidebar = null;    
   }
 
   private __onSwipeOpenStart = (e: TouchEvent): void => {
     if (this.targetElementIsBackdrop(e)) {
       return;
     }
-    const touchPositionX = e.touches[0].clientX;
-    const documentTouch = this.hasLeftPosition() ? touchPositionX : document.body.clientWidth - touchPositionX;
+
+    let touchPosition, documentTouch;
+    if(this.hasTopPosition() || this.hasBottomPosition()) {
+      touchPosition = e.touches[0].clientY;
+      documentTouch = this.hasTopPosition() ? touchPosition : window.innerHeight - touchPosition;
+    } else {
+      touchPosition = e.touches[0].clientX;
+      documentTouch = this.hasLeftPosition() ? touchPosition : document.body.clientWidth - touchPosition;
+    }
+    
     if (documentTouch < this.documentSwipeRange) {
       this.__onTouchStart(e);
     }
@@ -141,22 +174,40 @@ export class SidebarElement implements SidebarBase {
 
   private __onSwipeOpenMove = (e: TouchEvent): void => {
     if (!this.targetElementIsBackdrop(e) && this.initialTouch && !this.isVisible()) {
-      const documentSwiped = e.touches[0].clientX - this.initialTouch;
-      const hasLeftPosition = this.hasLeftPosition();
-      const swipeX = hasLeftPosition ? documentSwiped : -documentSwiped;
-      const sidebarMovement = this.container.clientWidth - swipeX;
-      if (sidebarMovement > 0 && swipeX >= this.documentMinSwipeX) {
-        this.openMovement = hasLeftPosition ? -sidebarMovement : sidebarMovement;
-        this.moveSidebar(this.openMovement);        
-      }
+
+      let documentSwiped, swipe, sidebarMovement, hasPosition;
+
+      if(this.hasTopPosition() || this.hasBottomPosition()) {
+        hasPosition = this.hasTopPosition();
+        documentSwiped = e.touches[0].clientY - this.initialTouch;
+        swipe = hasPosition ? documentSwiped : -documentSwiped;
+        sidebarMovement = this.container.clientHeight - swipe;
+
+        if (sidebarMovement > 0 && swipe >= this.documentMinSwipeY) {
+          this.openMovement = hasPosition ? -sidebarMovement : sidebarMovement;
+          this.moveSidebar(this.openMovement);        
+        }
+
+      } else {
+        hasPosition = this.hasLeftPosition();
+        documentSwiped = e.touches[0].clientX - this.initialTouch;
+        swipe = hasPosition ? documentSwiped : -documentSwiped;
+        sidebarMovement = this.container.clientWidth - swipe;        
+
+        if (sidebarMovement > 0 && swipe >= this.documentMinSwipeX) {
+          this.openMovement = hasPosition ? -sidebarMovement : sidebarMovement;
+          this.moveSidebar(this.openMovement);
+        }
+      }      
     }
   }
 
-  private __onSwipeOpenEnd = (): void => {
+  private __onSwipeOpenEnd = (): void => {    
     if (this.openMovement) {
       this.openMovement = null;
       this.__onTouchEnd();
     }
+    document.querySelector('body').classList.remove('ui-block-scrolling');
   }
 
   private __onTransitionEnd = (): void => {
@@ -176,7 +227,7 @@ export class SidebarElement implements SidebarBase {
       this.__emitOnChangeVisibility({isVisible});
     }
 
-    document.querySelector('body').style.overflow = "unset";
+    document.querySelector('body').classList.remove('ui-block-scrolling');
   }
 
   public isVisible(): boolean {
@@ -199,7 +250,6 @@ export class SidebarElement implements SidebarBase {
   }
 
   public setPosition(position: SidebarPosition): void {
-    this.component.classList.add(IS_MOVING);
     this.position = POSITIONS.indexOf(position) >= 0 ? position : LEFT_POSITION;
     const resetMainContent = (document.querySelectorAll(`[${SIDEBARJS}]`) || []).length === 1;
     this.removeComponentClassPosition(resetMainContent);
@@ -207,7 +257,7 @@ export class SidebarElement implements SidebarBase {
     if (this.responsive && this.mainContent) {
       this.mainContent.classList.add(`${SIDEBARJS_CONTENT}--${this.position}`);
     }
-    setTimeout(() => this.component && this.component.classList.remove(IS_MOVING), 200);
+    this.component
   }
 
   public addAttrsEventsListeners(sidebarName: string): void {
@@ -272,6 +322,14 @@ export class SidebarElement implements SidebarBase {
     return this.position === RIGHT_POSITION;
   }
 
+  private hasTopPosition(): boolean {
+    return this.position === TOP_POSITION;
+  }
+
+  private hasBottomPosition(): boolean {
+    return this.position === BOTTOM_POSITION;
+  }
+
   private transcludeContent(): void {
     while (this.component.firstChild) {
       this.container.appendChild(this.component.firstChild);
@@ -309,8 +367,14 @@ export class SidebarElement implements SidebarBase {
 
   private moveSidebar(movement: number): void {
     this.component.classList.add(IS_MOVING);
-    this.applyStyle(this.container, 'transform', `translate3d(${movement}px, 0, 0)`, true);
+    if(this.hasTopPosition() || this.hasBottomPosition()) {
+      this.applyStyle(this.container, 'transform', `translate3d(0, ${movement}px, 0)`, true);
+    } else {
+      this.applyStyle(this.container, 'transform', `translate3d(${movement}px, 0, 0)`, true);  
+    }
+    
     this.updateBackdropOpacity(movement);
+
     if (this.__emitOnMoving) {
       this.__emitOnMoving();
     }
