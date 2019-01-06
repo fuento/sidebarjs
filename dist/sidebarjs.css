@@ -8,16 +8,20 @@
   height: 100%; }
 
 .sidebarjs--left[sidebarjs], [sidebarjs].sidebarjs--left [sidebarjs-container] {
-  transform: translate3d(-100%, 0, 0); }
+  -webkit-transform: translate3d(-100%, 0, 0);
+          transform: translate3d(-100%, 0, 0); }
 
 .sidebarjs--right[sidebarjs], [sidebarjs].sidebarjs--right [sidebarjs-container] {
-  transform: translate3d(100%, 0, 0); }
+  -webkit-transform: translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0); }
 
 .sidebarjs--top[sidebarjs], [sidebarjs].sidebarjs--top [sidebarjs-container] {
-  transform: translate3d(0, -90%, 0); }
+  -webkit-transform: translate3d(0, -90%, 0);
+          transform: translate3d(0, -90%, 0); }
 
 .sidebarjs--bottom[sidebarjs] {
-  transform: translate3d(0, 90%, 0);
+  -webkit-transform: translate3d(0, 90%, 0);
+          transform: translate3d(0, 90%, 0);
   width: 100%;
   max-width: 100%;
   top: auto;
@@ -25,21 +29,29 @@
   z-index: 9000; }
 
 [sidebarjs].sidebarjs--left [sidebarjs-container] {
-  box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.2); }
+  -webkit-box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 2px 0px 4px rgba(0, 0, 0, 0.2); }
 
 [sidebarjs].sidebarjs--right [sidebarjs-container] {
-  box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: -2px 0px 4px rgba(0, 0, 0, 0.2);
   margin-left: auto; }
 
 [sidebarjs].sidebarjs--top [sidebarjs-container] {
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
   margin-left: auto; }
 
 [sidebarjs].sidebarjs--bottom {
-  transition: transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  transition: -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  transition: transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  transition: transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95), -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95); }
   [sidebarjs].sidebarjs--bottom [sidebarjs-container] {
-    box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.2);
-    transform: translate3d(0, 0, 0);
+    -webkit-box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.2);
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
     width: 100%;
     max-width: 100%;
     margin-left: auto; }
@@ -48,52 +60,83 @@
   position: absolute;
   background: #000;
   opacity: 0;
+  -webkit-transition: opacity 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
   transition: opacity 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
   will-change: opacity; }
 
 [sidebarjs-container] {
   position: relative;
   z-index: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   width: 90%;
   max-width: 300px;
   height: 100%;
   background: #fff;
+  -webkit-transition: -webkit-transform cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
+  transition: -webkit-transform cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
   transition: transform cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
+  transition: transform cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s, -webkit-transform cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
   will-change: transform; }
 
 [sidebarjs] {
   position: fixed;
   z-index: 9999;
-  transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s; }
+  -webkit-transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
+  transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
+  transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s;
+  transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s, -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0.2s; }
   [sidebarjs].sidebarjs--is-visible {
-    transform: translate3d(0, 0, 0);
-    transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s; }
-    [sidebarjs].sidebarjs--is-visible [sidebarjs-container] {
-      transform: translate3d(0, 0, 0);
-      transition-duration: 0.25s; }
-  [sidebarjs].sidebarjs--is-visible.sidebarjs--bottom {
-    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    -webkit-transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
     transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s, -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s; }
+    [sidebarjs].sidebarjs--is-visible [sidebarjs-container] {
+      -webkit-transform: translate3d(0, 0, 0);
+              transform: translate3d(0, 0, 0);
+      -webkit-transition-duration: 0.25s;
+              transition-duration: 0.25s; }
+  [sidebarjs].sidebarjs--is-visible.sidebarjs--bottom {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    -webkit-transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s, -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    -webkit-transition: -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) !important;
+    transition: -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) !important;
     transition: transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) !important;
+    transition: transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95), -webkit-transform 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) !important;
     height: 100%;
     bottom: 0; }
     [sidebarjs].sidebarjs--is-visible.sidebarjs--bottom [sidebarjs-container] {
-      transform: translate3d(0, 0, 0);
-      transition-duration: 0.25s; }
+      -webkit-transform: translate3d(0, 0, 0);
+              transform: translate3d(0, 0, 0);
+      -webkit-transition-duration: 0.25s;
+              transition-duration: 0.25s; }
     [sidebarjs].sidebarjs--is-visible.sidebarjs--bottom [sidebarjs-container] {
       margin-top: 0; }
   [sidebarjs].sidebarjs--is-moving {
+    -webkit-transition: none;
     transition: none;
-    transform: translate3d(0, 0, 0); }
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0); }
     [sidebarjs].sidebarjs--is-moving [sidebarjs-container], [sidebarjs].sidebarjs--is-moving [sidebarjs-backdrop] {
+      -webkit-transition: none;
       transition: none; }
 
 [sidebarjs-content] {
   position: relative;
   width: 100%;
   min-height: 100%;
+  -webkit-transition: width 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
   transition: width 0.2s cubic-bezier(0.45, 0.05, 0.55, 0.95); }
   [sidebarjs-content].sidebarjs-content--left {
     margin-left: auto;
@@ -110,38 +153,51 @@
 
 @media (min-width: 1025px) {
   [sidebarjs].sidebarjs--responsive {
-    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+            transform: translate3d(0, 0, 0) !important;
+    -webkit-transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
     transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
+    transition: transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s, -webkit-transform 0s cubic-bezier(0.45, 0.05, 0.55, 0.95) 0s;
     width: 300px; }
     [sidebarjs].sidebarjs--responsive [sidebarjs-container] {
-      transform: translate3d(0, 0, 0) !important;
-      transition-duration: 0.25s; }
+      -webkit-transform: translate3d(0, 0, 0) !important;
+              transform: translate3d(0, 0, 0) !important;
+      -webkit-transition-duration: 0.25s;
+              transition-duration: 0.25s; }
     [sidebarjs].sidebarjs--responsive.sidebarjs--left {
       left: 0;
       right: auto; }
       [sidebarjs].sidebarjs--responsive.sidebarjs--left [sidebarjs-container] {
-        box-shadow: 1px 0 0 rgba(0, 0, 0, 0.1); }
+        -webkit-box-shadow: 1px 0 0 rgba(0, 0, 0, 0.1);
+                box-shadow: 1px 0 0 rgba(0, 0, 0, 0.1); }
     [sidebarjs].sidebarjs--responsive.sidebarjs--right {
       right: 0;
       left: auto; }
       [sidebarjs].sidebarjs--responsive.sidebarjs--right [sidebarjs-container] {
-        box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
+        -webkit-box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1);
+                box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
     [sidebarjs].sidebarjs--responsive.sidebarjs--top {
       top: 0;
       left: auto; }
       [sidebarjs].sidebarjs--responsive.sidebarjs--top [sidebarjs-container] {
-        box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
+        -webkit-box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1);
+                box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
     [sidebarjs].sidebarjs--responsive.sidebarjs--bottom {
       bottom: 0;
       left: auto; }
       [sidebarjs].sidebarjs--responsive.sidebarjs--bottom [sidebarjs-container] {
-        box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
+        -webkit-box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1);
+                box-shadow: -1px 0 0 rgba(0, 0, 0, 0.1); }
     [sidebarjs].sidebarjs--responsive [sidebarjs-container] {
       max-width: none;
       width: 100%;
-      box-shadow: none; }
+      -webkit-box-shadow: none;
+              box-shadow: none; }
   [sidebarjs-content] {
+    width: -webkit-calc(100% - 300px);
     width: calc(100% - 300px); }
     [sidebarjs-content].sidebarjs-content--left.sidebarjs-content--right {
+      width: -webkit-calc(100% - 600px);
       width: calc(100% - 600px);
       margin: 0 auto; } }
